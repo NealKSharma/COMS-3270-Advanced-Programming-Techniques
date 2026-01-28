@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define maxX 21
-#define maxY 80
+#define maxX 80
+#define maxY 21
 
-char map[maxX][maxY];
+char map[maxY][maxX];
 
 void setupMap();
 void printMap();
@@ -23,12 +23,12 @@ int main(int argc, char *argv[]){
 }
 
 void setupMap(){
-    for(int i = 0; i < maxX; i++){
-        for(int j = 0; j < maxY; j++){
-            if(i == 0 || i == maxX - 1 || j == 0 || j == maxY - 1){
+    for(int i = 0; i < maxY; i++){
+        for(int j = 0; j < maxX; j++){
+            if(i == 0 || i == maxY - 1 || j == 0 || j == maxX - 1){
                 map[i][j] = '%';
             } else {
-                map[i][j] = '.';
+                map[i][j] = ' ';
             }
         }
     }
@@ -36,28 +36,61 @@ void setupMap(){
 
 void generatePaths(){
     // Generating the random Enterances
-    int northEnterance = (rand() % (maxY - 4)) + 2;
-    int southEnterance = (rand() % (maxY - 4)) + 2;
-    while(northEnterance == southEnterance){
-        southEnterance = (rand() % (maxY - 4)) + 2;
+    int northX = (rand() % (maxX - 4)) + 2;
+    int southX = (rand() % (maxX - 4)) + 2;
+    while(abs(northX - southX) < 10){ southX = (rand() % (maxX - 4)) + 2; } // Makes it so they arent aligned too closed
+
+    int westY = (rand() % (maxY - 4)) + 2;
+    int eastY = (rand() % (maxY - 4)) + 2;
+    while(abs(westY - eastY) < 5){ eastY = (rand() % (maxY - 4)) + 2; }
+
+    map[0][northX] = '#';
+    map[maxY - 1][southX] = '#';
+    map[westY][0] = '#';
+    map[eastY][maxX - 1] = '#';
+
+    // Connecting the enterances
+    int currentX, currentY, direction;
+
+    // North to South path
+    currentX = northX;
+    currentY = 1;
+    while(currentX != southX || currentY != maxY - 1){
+        map[currentY][currentX] = '#';
+        direction = rand() % 5; // Favours left or right movement due to it being a rectangle.
+
+        if((direction == 0) && currentY < maxY - 2){
+            currentY++;
+        } else if(currentX != southX){
+            if(currentX > southX) currentX--;
+            else currentX++;
+        } else if(currentX == southX && currentY < maxY - 1){
+            currentY++;
+        }
     }
 
-    int westEnterance = (rand() % (maxX - 4)) + 2;
-    int eastEnterance = (rand() % (maxX - 4)) + 2;
-    while(westEnterance == eastEnterance){
-        eastEnterance = (rand() % (maxX - 4)) + 2;
-    }
+    // West to East path
+    currentX = 1;
+    currentY = westY;
+    while(currentY != eastY || currentX != maxX - 1){
+        map[currentY][currentX] = '#';
+        direction = rand() % 5; // Favours right movement due to it being a rectangle.
 
-    map[0][northEnterance] = '#';
-    map[maxX - 1][southEnterance] = '#';
-    map[westEnterance][0] = '#';
-    map[eastEnterance][maxY - 1] = '#';
+        if((direction != 0) && currentX < maxX - 2){
+            currentX++;
+        } else if(currentY != eastY){
+            if(currentY > eastY) currentY--;
+            else currentY++;
+        } else if(currentY == eastY && currentX < maxX - 1){
+            currentX++;
+        }
+    }
 }
 
 void printMap(){
-    for(int i = 0; i < maxX; i++){
-        for(int j = 0; j < maxY; j++){
-           printf("%c ", map[i][j]);
+    for(int i = 0; i < maxY; i++){
+        for(int j = 0; j < maxX; j++){
+           printf("%c", map[i][j]);
         }
         printf("\n");
     }
