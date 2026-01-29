@@ -2,20 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define maxX 80
 #define maxY 21
+#define maxX 80
 
 char map[maxY][maxX];
 
 void setupMap();
 void printMap();
 void generatePaths();
+void generateBuildings();
 
 int main(int argc, char *argv[]){
     srand(time(NULL));
 
     setupMap();
     generatePaths();
+    generateBuildings();
 
     printMap();
 
@@ -57,7 +59,7 @@ void generatePaths(){
     currentY = 1;
     while(currentX != southX || currentY != maxY - 1){
         map[currentY][currentX] = '#';
-        direction = rand() % 5; // Favours left or right movement due to it being a rectangle.
+        direction = rand() % 4; // Favours left or right movement due to it being a rectangle.
 
         if((direction == 0) && currentY < maxY - 2){
             currentY++;
@@ -74,7 +76,7 @@ void generatePaths(){
     currentY = westY;
     while(currentY != eastY || currentX != maxX - 1){
         map[currentY][currentX] = '#';
-        direction = rand() % 5; // Favours right movement due to it being a rectangle.
+        direction = rand() % 4; // Favours right movement due to it being a rectangle.
 
         if((direction != 0) && currentX < maxX - 2){
             currentX++;
@@ -83,6 +85,30 @@ void generatePaths(){
             else currentY++;
         } else if(currentY == eastY && currentX < maxX - 1){
             currentX++;
+        }
+    }
+}
+
+void generateBuildings(){
+    char types[] = {'M', 'C'}; // M = Pokemart, C = Pokecentre
+    for (int i = 0; i <  sizeof(types)/sizeof(types[0]); i++) {
+        while (1) {
+            // Pick coordinates for top-left of 2x2 while staying away from borders
+            int y = (rand() % (maxY - 8)) + 4;
+            int x = (rand() % (maxX - 8)) + 4;
+            // Check if a 2x2 square can be placed
+            if (map[y][x] == ' '   && map[y][x+1] == ' ' &&
+                map[y+1][x] == ' ' && map[y+1][x+1] == ' ') {
+                // Check the surrounding of the square for a path
+                if (map[y-1][x] == '#' || map[y-1][x+1] == '#' || map[y+2][x] == '#' || map[y+2][x+1] == '#' ||
+                    map[y][x-1] == '#' || map[y+1][x-1] == '#' || map[y][x+2] == '#' || map[y+1][x+2] == '#'){
+                        map[y][x] = types[i];
+                        map[y][x+1] = types[i];
+                        map[y+1][x] = types[i];
+                        map[y+1][x+1] = types[i];
+                        break;
+                }
+            }
         }
     }
 }
