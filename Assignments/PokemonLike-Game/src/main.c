@@ -7,10 +7,17 @@
 
 char map[maxY][maxX];
 
+typedef struct {
+    int x;
+    int y;
+} QueueNode;
+
 void setupMap();
 void printMap();
 void generatePaths();
 void generateBuildings();
+void generateTerrain();
+void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queue[], int *tail);
 
 int main(int argc, char *argv[]){
     srand(time(NULL));
@@ -18,6 +25,7 @@ int main(int argc, char *argv[]){
     setupMap();
     generatePaths();
     generateBuildings();
+    generateTerrain();
 
     printMap();
 
@@ -107,6 +115,87 @@ void generateBuildings(){
                         map[y+1][x] = types[i];
                         map[y+1][x+1] = types[i];
                         break;
+                }
+            }
+        }
+    }
+}
+
+void generateTerrain(){
+    QueueNode queue[maxY * maxX];
+    int head = 0;
+    int tail = 0;
+
+    char terrainTypes[] = {':', '~', '.', '%'};
+    int seedCounts[] = {6, 1, 6, 1}; // Need to find the perfect balance.
+    
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < seedCounts[i]; j++){
+            int y = (rand() % (maxY - 4)) + 2;
+            int x = (rand() % (maxX - 4)) + 2;
+            while(map[y][x] != ' '){
+                y = (rand() % (maxY - 4)) + 2;
+                x = (rand() % (maxX - 4)) + 2;
+            }
+            map[y][x] = terrainTypes[i];
+            queue[tail].x = x;
+            queue[tail].y = y;
+            tail++;
+        }
+    }
+
+    while(head < tail){
+        int currentX = queue[head].x;
+        int currentY = queue[head].y;
+        head++;
+
+        addToQueue(currentX + 1, currentY, currentX, currentY, queue, &tail); // Right
+        addToQueue(currentX - 1, currentY, currentX, currentY, queue, &tail); // Left
+        addToQueue(currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
+        addToQueue(currentX, currentY - 1, currentX, currentY, queue, &tail); // Up
+    }
+
+    // Add 20 to 30 Trees
+    int trees = (rand() % 20) + 10;
+    for(int i = 0; i < trees; i++){
+        int y = (rand() % (maxY - 4)) + 2;
+        int x = (rand() % (maxX - 4)) + 2;
+        while(map[y][x] != ':' && map[y][x] != '.'){
+            y = (rand() % (maxY - 4)) + 2;
+            x = (rand() % (maxX - 4)) + 2;
+        }
+        map[y][x] = '^';
+    }
+
+    // Add 5 to 10 Flowers
+    int flowers = (rand() % 5) + 5;
+    for(int i = 0; i < flowers; i++){
+        int y = (rand() % (maxY - 4)) + 2;
+        int x = (rand() % (maxX - 4)) + 2;
+        while(map[y][x] != ':' && map[y][x] != '.'){
+            y = (rand() % (maxY - 4)) + 2;
+            x = (rand() % (maxX - 4)) + 2;
+        }
+        map[y][x] = '*';
+    }
+}
+
+void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queue[], int *tail) {
+    if (nextX > 0 && nextX < maxX - 1 && nextY > 0 && nextY < maxY - 1) {
+        if (map[nextY][nextX] == ' ') {
+            map[nextY][nextX] = map[currentY][currentX];
+            queue[*tail].x = nextX;
+            queue[*tail].y = nextY;
+            (*tail)++;
+        } else if (map[nextY][nextX] == '#') {
+            int jumpX = nextX + (nextX - currentX);
+            int jumpY = nextY + (nextY - currentY);
+            if (jumpX > 0 && jumpX < maxX - 1 && jumpY > 0 && jumpY < maxY - 1) {
+                if (map[jumpY][jumpX] == ' ') {
+                    map[jumpY][jumpX] = map[currentY][currentX];
+                    queue[*tail].x = jumpX;
+                    queue[*tail].y = jumpY;
+                    (*tail)++;
                 }
             }
         }
