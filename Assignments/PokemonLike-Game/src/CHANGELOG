@@ -1,0 +1,22 @@
+January 28, 2026
+- Initialized the project and settled on the 80x21 map coordinate system and pre-filled the array with ' ' spaces.
+- Implemented random entrance generation on all four map borders.
+- Created a path-finding algorithm to connect the North-South and East-West entrances.
+- Integrated random path variations to favor longer, more natural distances. These variations favour the longer side of the map.
+
+January 29, 2026
+- Identified and fixed a bug where path generation would occasionally overwrite the '%' border boulders.
+- Adjusted the pathing logic to increase the overall randomness of the generation.
+- Developed the building generation system for 2x2 Pokemarts ('M') and Pokecentres ('C').
+- Added logic to ensure buildings are placed adjacent to a path and do not overlap.
+
+January 30, 2026
+- Implemented a seed-based terrain growth system to create natural regions.
+- Added support for tall grass (':'), water ('~'), and clearings ('.') using a queue-based expansion.
+- Populated the map with secondary objects, including trees ('^') and flowers ('*').
+
+February 2, 2026
+- Renamed the primary source file from main.c to map.c for better project organization.
+- Updated the Makefile to reflect the file name change and include debugging symbols.
+- Drafted the README and finalized the CHANGELOG for the version 1.01 submission.
+- Project verified and ready for submission.

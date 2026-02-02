@@ -1,0 +1,12 @@
+Assignment 1.01: Terrain Generation for Pokemon-Like Game
+
+The map.c file generates a randomized 80x21 Pokemon-style terrain map. It features a boulder-enclosed border with four randomized exits connected by intersecting N-S and E-W paths. The map includes 2x2 Pokémon Centers ('C') and Pokémarts ('M') placed adjacent to paths. Terrain is generated using a seed-based growth algorithm to create regions of tall grass (':'), water ('~'), and clearings ('.'). Additional elements include scattered trees ('^') and flowers ('*').
+
+Key Functions:
+- generatePaths(): Generates random gates and connects them via randomly (weighted) generated paths.
+- generateBuildings(): Ensures 2x2 structures are placed next to the paths.
+- generateTerrain(): Genrates random seeds then use a queue-based expansion to fill the map from these seeds.
+
+Data Structures:
+- map[21][80]: 2D char array storing the terrain.
+- QueueNode: Struct for coordinate tracking during terrain expansion.
