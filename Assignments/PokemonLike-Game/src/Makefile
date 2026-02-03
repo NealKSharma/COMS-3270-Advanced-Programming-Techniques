@@ -1,7 +1,13 @@
-all: map
+all: main
 
-map: map.c
-	gcc -g map.c -o map
+main: main.o map.o
+	gcc main.o map.o -o main
+
+main.o: main.c map.h
+	gcc -c main.c -o main.o
+
+map.o: map.c map.h
+	gcc -c map.c -o map.o
 
 clean:
-	rm -f map
+	rm main main.o map.o

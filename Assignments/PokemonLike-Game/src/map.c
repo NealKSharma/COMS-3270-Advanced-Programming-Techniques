@@ -1,36 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-#define maxY 21
-#define maxX 80
+#include "map.h"
 
 char map[maxY][maxX];
-
-typedef struct {
-    int x;
-    int y;
-} QueueNode;
-
-void setupMap();
-void printMap();
-void generatePaths();
-void generateBuildings();
-void generateTerrain();
-void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queue[], int *tail);
-
-int main(int argc, char *argv[]){
-    srand(time(NULL));
-
-    setupMap();
-    generatePaths();
-    generateBuildings();
-    generateTerrain();
-
-    printMap();
-
-    return 0;
-}
 
 void setupMap(){
     for(int i = 0; i < maxY; i++){

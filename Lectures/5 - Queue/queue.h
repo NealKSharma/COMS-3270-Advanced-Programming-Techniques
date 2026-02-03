@@ -1,16 +1,18 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-typedef struct {
+typedef struct node node;
+struct node{
     int data;
     node *prev;
     node *next;
-}node;
+};
 
-typedef struct {
-    node *head;
-    node *tail;
-}queue;
+typedef struct queue queue;
+struct queue{
+    node *head, *tail;
+    int length;
+};
 
 int queue_init(queue *q);
 int queue_enqueue(queue *q, int payload);
