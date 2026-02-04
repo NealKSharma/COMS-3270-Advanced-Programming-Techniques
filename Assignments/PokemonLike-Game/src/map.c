@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "map.h"
 
 void setupMap(currentMap *map){
@@ -16,7 +15,7 @@ void setupMap(currentMap *map){
 }
 
 void generatePaths(currentMap *map, int n, int s, int w, int e){
-    // Generating the random Enterances
+    // Generating the enterances
     map->nGate = (n<0) ? (rand() % (maxX - 4)) + 2 : n; // If n is -ve then the gate needs to be assigned randomly otherwise its already assigned.
     map->sGate = (s<0) ? (rand() % (maxX - 4)) + 2 : s;
     while(abs(map->nGate - map->sGate) < 10 && (n<0 || s<0)){ // Makes it so they arent aligned too closed
@@ -31,10 +30,10 @@ void generatePaths(currentMap *map, int n, int s, int w, int e){
         if(e<0) map->eGate = (rand() % (maxY - 4)) + 2;
     }
 
-    map->terrain[0][map->nGate] = '#';
-    map->terrain[maxY - 1][map->eGate] = '#';
-    map->terrain[map->wGate][0] = '#';
-    map->terrain[map->eGate][maxX - 1] = '#';
+    map->terrain[0][map->nGate] = '#'; // North
+    map->terrain[maxY - 1][map->sGate] = '#'; // South
+    map->terrain[map->wGate][0] = '#'; // West
+    map->terrain[map->eGate][maxX - 1] = '#'; // East
 
     // Connecting the enterances
     int currentX, currentY, direction;
