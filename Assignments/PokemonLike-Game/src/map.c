@@ -73,9 +73,10 @@ void generatePaths(currentMap *map, int n, int s, int w, int e){
     }
 }
 
-void generateBuildings(currentMap *map){
-    char types[] = {'M', 'C'}; // M = Pokemart, C = Pokecentre
+void generateBuildings(currentMap *map, char pokeMart, char pokeCentre){
+    char types[] = {pokeMart, pokeCentre}; // Could be ' ' or 'M' / 'C'
     for (int i = 0; i <  sizeof(types)/sizeof(types[0]); i++) {
+        if (types[i] == ' ') continue;
         while (1) {
             // Pick coordinates for top-left of 2x2 while staying away from borders
             int y = (rand() % (maxY - 8)) + 4;

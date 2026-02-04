@@ -23,6 +23,7 @@ int main(int argc, char *argv[]){
     char input = '?';
 
     while(input != 'q'){
+        printf("Current coordinates: (%d, %d)\n", y-200, x-200);
         printf("Move (n,s,e,w) or 'q':");
         scanf(" %c", &input);
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]){
             printf("Thanks for playing!");
             break;
         }
-
+        
         switch (input) {
             case 'n': handleMovement(-1, 0); break;
             case 's': handleMovement(1, 0);  break;
@@ -56,8 +57,8 @@ int main(int argc, char *argv[]){
 
 void generateLandingMap(currentMap *map){
     setupMap(map);
-    generatePaths(map, -1, -1, -1, -1);
-    generateBuildings(map);
+    generatePaths(map, -1, -1, -1, -1); // Random gates
+    generateBuildings(map, 'M', 'C'); // Always generates the buildings
     generateTerrain(map);
     printMap(map);
 }
@@ -91,7 +92,13 @@ void generateMap(currentMap *map){
     int e = (x < 400 && world[y][x+1] != NULL) ? world[y][x+1]->wGate : -1;
     generatePaths(map, n, s, w, e);
 
-    generateBuildings(map);
+    int distance = abs(x - 200) + abs(y - 200);
+    int probability = 5;
+    if(distance < 200) probability = ((-45 * distance) / 200) + 50;
+
+    char pokeMart = ((rand() % 100) < probability) ? 'M' : ' ';
+    char pokeCentre = ((rand() % 100) < probability) ? 'C' : ' ';
+    generateBuildings(map, pokeMart, pokeCentre);
 
     generateTerrain(map);
     printMap(map);
