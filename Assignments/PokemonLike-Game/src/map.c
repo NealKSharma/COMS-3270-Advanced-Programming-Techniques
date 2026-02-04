@@ -3,74 +3,78 @@
 
 #include "map.h"
 
-char map[maxY][maxX];
-
-void setupMap(){
+void setupMap(currentMap *map){
     for(int i = 0; i < maxY; i++){
         for(int j = 0; j < maxX; j++){
             if(i == 0 || i == maxY - 1 || j == 0 || j == maxX - 1){
-                map[i][j] = '%';
+                map->terrain[i][j] = '%';
             } else {
-                map[i][j] = ' ';
+                map->terrain[i][j] = ' ';
             }
         }
     }
 }
 
-void generatePaths(){
+void generatePaths(currentMap *map, int n, int s, int w, int e){
     // Generating the random Enterances
-    int northX = (rand() % (maxX - 4)) + 2;
-    int southX = (rand() % (maxX - 4)) + 2;
-    while(abs(northX - southX) < 10){ southX = (rand() % (maxX - 4)) + 2; } // Makes it so they arent aligned too closed
+    map->nGate = (n<0) ? (rand() % (maxX - 4)) + 2 : n; // If n is -ve then the gate needs to be assigned randomly otherwise its already assigned.
+    map->sGate = (s<0) ? (rand() % (maxX - 4)) + 2 : s;
+    while(abs(map->nGate - map->sGate) < 10 && (n<0 || s<0)){ // Makes it so they arent aligned too closed
+        if(n<0) map->nGate = (rand() % (maxX - 4)) + 2; 
+        if(s<0) map->sGate = (rand() % (maxX - 4)) + 2; 
+    }
 
-    int westY = (rand() % (maxY - 4)) + 2;
-    int eastY = (rand() % (maxY - 4)) + 2;
-    while(abs(westY - eastY) < 5){ eastY = (rand() % (maxY - 4)) + 2; }
+    map->wGate = (w<0) ? (rand() % (maxY - 4)) + 2 : w;
+    map->eGate = (e<0) ? (rand() % (maxY - 4)) + 2 : e;
+    while(abs(map->wGate - map->eGate) < 5 && (w<0 || e<0)){
+        if(w<0) map->wGate = (rand() % (maxY - 4)) + 2;
+        if(e<0) map->eGate = (rand() % (maxY - 4)) + 2;
+    }
 
-    map[0][northX] = '#';
-    map[maxY - 1][southX] = '#';
-    map[westY][0] = '#';
-    map[eastY][maxX - 1] = '#';
+    map->terrain[0][map->nGate] = '#';
+    map->terrain[maxY - 1][map->eGate] = '#';
+    map->terrain[map->wGate][0] = '#';
+    map->terrain[map->eGate][maxX - 1] = '#';
 
     // Connecting the enterances
     int currentX, currentY, direction;
 
     // North to South path
-    currentX = northX;
+    currentX = map->nGate;
     currentY = 1;
-    while(currentX != southX || currentY != maxY - 1){
-        map[currentY][currentX] = '#';
+    while(currentX != map->sGate || currentY != maxY - 1){
+        map->terrain[currentY][currentX] = '#';
         direction = rand() % 4; // Favours left or right movement due to it being a rectangle.
 
         if((direction == 0) && currentY < maxY - 2){
             currentY++;
-        } else if(currentX != southX){
-            if(currentX > southX) currentX--;
+        } else if(currentX != map->sGate){
+            if(currentX > map->sGate) currentX--;
             else currentX++;
-        } else if(currentX == southX && currentY < maxY - 1){
+        } else if(currentX == map->sGate && currentY < maxY - 1){
             currentY++;
         }
     }
 
     // West to East path
     currentX = 1;
-    currentY = westY;
-    while(currentY != eastY || currentX != maxX - 1){
-        map[currentY][currentX] = '#';
+    currentY = map->wGate;
+    while(currentY != map->eGate || currentX != maxX - 1){
+        map->terrain[currentY][currentX] = '#';
         direction = rand() % 4; // Favours right movement due to it being a rectangle.
 
         if((direction != 0) && currentX < maxX - 2){
             currentX++;
-        } else if(currentY != eastY){
-            if(currentY > eastY) currentY--;
+        } else if(currentY != map->eGate){
+            if(currentY > map->eGate) currentY--;
             else currentY++;
-        } else if(currentY == eastY && currentX < maxX - 1){
+        } else if(currentY == map->eGate && currentX < maxX - 1){
             currentX++;
         }
     }
 }
 
-void generateBuildings(){
+void generateBuildings(currentMap *map){
     char types[] = {'M', 'C'}; // M = Pokemart, C = Pokecentre
     for (int i = 0; i <  sizeof(types)/sizeof(types[0]); i++) {
         while (1) {
@@ -78,15 +82,15 @@ void generateBuildings(){
             int y = (rand() % (maxY - 8)) + 4;
             int x = (rand() % (maxX - 8)) + 4;
             // Check if a 2x2 square can be placed
-            if (map[y][x] == ' '   && map[y][x+1] == ' ' &&
-                map[y+1][x] == ' ' && map[y+1][x+1] == ' ') {
+            if (map->terrain[y][x] == ' '   && map->terrain[y][x+1] == ' ' &&
+                map->terrain[y+1][x] == ' ' && map->terrain[y+1][x+1] == ' ') {
                 // Check the surrounding of the square for a path
-                if (map[y-1][x] == '#' || map[y-1][x+1] == '#' || map[y+2][x] == '#' || map[y+2][x+1] == '#' ||
-                    map[y][x-1] == '#' || map[y+1][x-1] == '#' || map[y][x+2] == '#' || map[y+1][x+2] == '#'){
-                        map[y][x] = types[i];
-                        map[y][x+1] = types[i];
-                        map[y+1][x] = types[i];
-                        map[y+1][x+1] = types[i];
+                if (map->terrain[y-1][x] == '#' || map->terrain[y-1][x+1] == '#' || map->terrain[y+2][x] == '#' || map->terrain[y+2][x+1] == '#' ||
+                    map->terrain[y][x-1] == '#' || map->terrain[y+1][x-1] == '#' || map->terrain[y][x+2] == '#' || map->terrain[y+1][x+2] == '#'){
+                        map->terrain[y][x] = types[i];
+                        map->terrain[y][x+1] = types[i];
+                        map->terrain[y+1][x] = types[i];
+                        map->terrain[y+1][x+1] = types[i];
                         break;
                 }
             }
@@ -94,8 +98,8 @@ void generateBuildings(){
     }
 }
 
-void generateTerrain(){
-    QueueNode queue[maxY * maxX];
+void generateTerrain(currentMap *map){
+    queueNode queue[maxY * maxX];
     int head = 0;
     int tail = 0;
 
@@ -106,11 +110,11 @@ void generateTerrain(){
         for(int j = 0; j < seedCounts[i]; j++){
             int y = (rand() % (maxY - 4)) + 2;
             int x = (rand() % (maxX - 4)) + 2;
-            while(map[y][x] != ' '){
+            while(map->terrain[y][x] != ' '){
                 y = (rand() % (maxY - 4)) + 2;
                 x = (rand() % (maxX - 4)) + 2;
             }
-            map[y][x] = terrainTypes[i];
+            map->terrain[y][x] = terrainTypes[i];
             queue[tail].x = x;
             queue[tail].y = y;
             tail++;
@@ -122,10 +126,10 @@ void generateTerrain(){
         int currentY = queue[head].y;
         head++;
 
-        addToQueue(currentX + 1, currentY, currentX, currentY, queue, &tail); // Right
-        addToQueue(currentX - 1, currentY, currentX, currentY, queue, &tail); // Left
-        addToQueue(currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
-        addToQueue(currentX, currentY - 1, currentX, currentY, queue, &tail); // Up
+        addToQueue(map, currentX + 1, currentY, currentX, currentY, queue, &tail); // Right
+        addToQueue(map, currentX - 1, currentY, currentX, currentY, queue, &tail); // Left
+        addToQueue(map, currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
+        addToQueue(map, currentX, currentY - 1, currentX, currentY, queue, &tail); // Up
     }
 
     // Add 20 to 30 Trees
@@ -133,11 +137,11 @@ void generateTerrain(){
     for(int i = 0; i < trees; i++){
         int y = (rand() % (maxY - 4)) + 2;
         int x = (rand() % (maxX - 4)) + 2;
-        while(map[y][x] != ':' && map[y][x] != '.'){
+        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.'){
             y = (rand() % (maxY - 4)) + 2;
             x = (rand() % (maxX - 4)) + 2;
         }
-        map[y][x] = '^';
+        map->terrain[y][x] = '^';
     }
 
     // Add 5 to 10 Flowers
@@ -145,27 +149,27 @@ void generateTerrain(){
     for(int i = 0; i < flowers; i++){
         int y = (rand() % (maxY - 4)) + 2;
         int x = (rand() % (maxX - 4)) + 2;
-        while(map[y][x] != ':' && map[y][x] != '.'){
+        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.'){
             y = (rand() % (maxY - 4)) + 2;
             x = (rand() % (maxX - 4)) + 2;
         }
-        map[y][x] = '*';
+        map->terrain[y][x] = '*';
     }
 }
 
-void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queue[], int *tail) {
+void addToQueue(currentMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail) {
     if (nextX > 0 && nextX < maxX - 1 && nextY > 0 && nextY < maxY - 1) {
-        if (map[nextY][nextX] == ' ') {
-            map[nextY][nextX] = map[currentY][currentX];
+        if (map->terrain[nextY][nextX] == ' ') {
+            map->terrain[nextY][nextX] = map->terrain[currentY][currentX];
             queue[*tail].x = nextX;
             queue[*tail].y = nextY;
             (*tail)++;
-        } else if (map[nextY][nextX] == '#') {
+        } else if (map->terrain[nextY][nextX] == '#') {
             int jumpX = nextX + (nextX - currentX);
             int jumpY = nextY + (nextY - currentY);
             if (jumpX > 0 && jumpX < maxX - 1 && jumpY > 0 && jumpY < maxY - 1) {
-                if (map[jumpY][jumpX] == ' ') {
-                    map[jumpY][jumpX] = map[currentY][currentX];
+                if (map->terrain[jumpY][jumpX] == ' ') {
+                    map->terrain[jumpY][jumpX] = map->terrain[currentY][currentX];
                     queue[*tail].x = jumpX;
                     queue[*tail].y = jumpY;
                     (*tail)++;
@@ -175,10 +179,10 @@ void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queu
     }
 }
 
-void printMap(){
+void printMap(currentMap *map){
     for(int i = 0; i < maxY; i++){
         for(int j = 0; j < maxX; j++){
-           printf("%c", map[i][j]);
+           printf("%c", map->terrain[i][j]);
         }
         printf("\n");
     }

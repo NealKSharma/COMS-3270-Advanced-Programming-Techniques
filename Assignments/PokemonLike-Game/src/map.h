@@ -4,18 +4,20 @@
 #define maxY 21
 #define maxX 80
 
-extern char map[maxY][maxX];
+typedef struct {
+    int nGate, sGate, eGate, wGate;
+    char terrain[maxY][maxX];
+} currentMap;
 
 typedef struct {
-    int x;
-    int y;
-} QueueNode;
+    int x, y;
+} queueNode;
 
-void setupMap();
-void printMap();
-void generatePaths();
-void generateBuildings();
-void generateTerrain();
-void addToQueue(int nextX, int nextY, int currentX, int currentY, QueueNode queue[], int *tail);
+void setupMap(currentMap *map);
+void printMap(currentMap *map);
+void generatePaths(currentMap *map, int n, int s, int e, int w);
+void generateBuildings(currentMap *map);
+void generateTerrain(currentMap *map);
+void addToQueue(currentMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail);
 
 #endif
