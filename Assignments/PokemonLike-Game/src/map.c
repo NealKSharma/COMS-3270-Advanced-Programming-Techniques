@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "map.h"
 
-void setupMap(currentMap *map){
+void setupMap(singleMap *map){
     for(int i = 0; i < maxY; i++){
         for(int j = 0; j < maxX; j++){
             if(i == 0 || i == maxY - 1 || j == 0 || j == maxX - 1){
@@ -14,11 +14,13 @@ void setupMap(currentMap *map){
     }
 }
 
-void generatePaths(currentMap *map, int n, int s, int w, int e){
+void generatePaths(singleMap *map, int n, int s, int w, int e){
     // Generating the enterances
-    map->nGate = (n<0) ? (rand() % (maxX - 4)) + 2 : n; // If n is -ve then the gate needs to be assigned randomly otherwise its already assigned.
+    // If n/s/w/e is -ve then the gate needs to be assigned randomly otherwise its already assigned.
+    map->nGate = (n<0) ? (rand() % (maxX - 4)) + 2 : n;
     map->sGate = (s<0) ? (rand() % (maxX - 4)) + 2 : s;
-    while(abs(map->nGate - map->sGate) < 10 && (n<0 || s<0)){ // Makes it so they arent aligned too closed
+    // Makes it so they arent aligned too close
+    while(abs(map->nGate - map->sGate) < 10 && (n<0 || s<0)){
         if(n<0) map->nGate = (rand() % (maxX - 4)) + 2; 
         if(s<0) map->sGate = (rand() % (maxX - 4)) + 2; 
     }
@@ -30,10 +32,11 @@ void generatePaths(currentMap *map, int n, int s, int w, int e){
         if(e<0) map->eGate = (rand() % (maxY - 4)) + 2;
     }
 
-    map->terrain[0][map->nGate] = '#'; // North
-    map->terrain[maxY - 1][map->sGate] = '#'; // South
-    map->terrain[map->wGate][0] = '#'; // West
-    map->terrain[map->eGate][maxX - 1] = '#'; // East
+    // If n/s/w/e is -2 then visually a boulder is placed instead of a path at the border
+    map->terrain[0][map->nGate] = (n == -2) ? '%' : '#'; // North
+    map->terrain[maxY - 1][map->sGate] = (s == -2) ? '%' :  '#'; // South
+    map->terrain[map->wGate][0] = (w == -2) ? '%' :  '#'; // West
+    map->terrain[map->eGate][maxX - 1] = (e == -2) ? '%' :  '#'; // East
 
     // Connecting the enterances
     int currentX, currentY, direction;
@@ -73,7 +76,7 @@ void generatePaths(currentMap *map, int n, int s, int w, int e){
     }
 }
 
-void generateBuildings(currentMap *map, char pokeMart, char pokeCentre){
+void generateBuildings(singleMap *map, char pokeMart, char pokeCentre){
     char types[] = {pokeMart, pokeCentre}; // Could be ' ' or 'M' / 'C'
     for (int i = 0; i <  sizeof(types)/sizeof(types[0]); i++) {
         if (types[i] == ' ') continue;
@@ -98,7 +101,7 @@ void generateBuildings(currentMap *map, char pokeMart, char pokeCentre){
     }
 }
 
-void generateTerrain(currentMap *map){
+void generateTerrain(singleMap *map){
     queueNode queue[maxY * maxX];
     int head = 0;
     int tail = 0;
@@ -126,6 +129,7 @@ void generateTerrain(currentMap *map){
         int currentY = queue[head].y;
         head++;
 
+        // TODO: Favour left and right terrain generation over up and down
         addToQueue(map, currentX + 1, currentY, currentX, currentY, queue, &tail); // Right
         addToQueue(map, currentX - 1, currentY, currentX, currentY, queue, &tail); // Left
         addToQueue(map, currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
@@ -157,14 +161,14 @@ void generateTerrain(currentMap *map){
     }
 }
 
-void addToQueue(currentMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail) {
+void addToQueue(singleMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail) {
     if (nextX > 0 && nextX < maxX - 1 && nextY > 0 && nextY < maxY - 1) {
         if (map->terrain[nextY][nextX] == ' ') {
             map->terrain[nextY][nextX] = map->terrain[currentY][currentX];
             queue[*tail].x = nextX;
             queue[*tail].y = nextY;
             (*tail)++;
-        } else if (map->terrain[nextY][nextX] == '#') {
+        } else if (map->terrain[nextY][nextX] == '#') { // Jump over the paths
             int jumpX = nextX + (nextX - currentX);
             int jumpY = nextY + (nextY - currentY);
             if (jumpX > 0 && jumpX < maxX - 1 && jumpY > 0 && jumpY < maxY - 1) {
@@ -179,7 +183,8 @@ void addToQueue(currentMap *map, int nextX, int nextY, int currentX, int current
     }
 }
 
-void printMap(currentMap *map){
+void printMap(singleMap *map){
+    printf("\n");
     for(int i = 0; i < maxY; i++){
         for(int j = 0; j < maxX; j++){
            printf("%c", map->terrain[i][j]);

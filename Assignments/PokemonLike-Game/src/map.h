@@ -7,17 +7,17 @@
 typedef struct {
     int nGate, sGate, eGate, wGate;
     char terrain[maxY][maxX];
-} currentMap;
+} singleMap;
 
 typedef struct {
     int x, y;
 } queueNode;
 
-void setupMap(currentMap *map);
-void printMap(currentMap *map);
-void generatePaths(currentMap *map, int n, int s, int e, int w);
-void generateBuildings(currentMap *map, char pokeMart, char pokeCentre);
-void generateTerrain(currentMap *map);
-void addToQueue(currentMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail);
+void setupMap(singleMap *map);
+void printMap(singleMap *map);
+void generatePaths(singleMap *map, int n, int s, int w, int e);
+void generateBuildings(singleMap *map, char pokeMart, char pokeCentre);
+void generateTerrain(singleMap *map);
+void addToQueue(singleMap *map, int nextX, int nextY, int currentX, int currentY, queueNode queue[], int *tail);
 
 #endif
