@@ -1,22 +1,27 @@
-January 28, 2026
-- Initialized the project and settled on the 80x21 map coordinate system and pre-filled the array with ' ' spaces.
-- Implemented random entrance generation on all four map borders.
-- Created a path-finding algorithm to connect the North-South and East-West entrances.
-- Integrated random path variations to favor longer, more natural distances. These variations favour the longer side of the map.
+February 3, 2026
+- Set up folder structure for Assignment 1.02.
+- Created map.h header file and separated functionality between main.c and map.c.
+- Implemented a 401x401 world array of pointers to singleMap structs.
+- Added dynamic memory allocation (malloc) for maps and free logic for cleanup.
+- Updated path generation to support externally provided gate parameters for neighbor alignment.
 
-January 29, 2026
-- Identified and fixed a bug where path generation would occasionally overwrite the '%' border boulders.
-- Adjusted the pathing logic to increase the overall randomness of the generation.
-- Developed the building generation system for 2x2 Pokemarts ('M') and Pokecentres ('C').
-- Added logic to ensure buildings are placed adjacent to a path and do not overlap.
+February 3, 2026
+- Fixed a bug where the south path incorrectly connected into the east path.
+- Optimized path generation logic and improved overall map consistency.
 
-January 30, 2026
-- Implemented a seed-based terrain growth system to create natural regions.
-- Added support for tall grass (':'), water ('~'), and clearings ('.') using a queue-based expansion.
-- Populated the map with secondary objects, including trees ('^') and flowers ('*').
+February 4, 2026
+- Implemented declining building spawn probability based on Manhattan distance from world center.
+- Ensured center map (0,0) always contains both Pokémart ('M') and Pokécenter ('C').
 
-February 2, 2026
-- Renamed the primary source file from main.c to map.c for better project organization.
-- Updated the Makefile to reflect the file name change and include debugging symbols.
-- Drafted the README and finalized the CHANGELOG for the version 1.01 submission.
+February 9, 2026
+- Implemented player movement system (n, s, e, w).
+- Switched from scanf to getchar for better input handling.
+- Added fly command (f x y) with coordinate validation.
+- Added boundary checks to prevent movement outside the 401x401 world.
+- Modified map generation so world-border maps do not generate outward-facing gates.
+- Unified initial map generation with standard map generation logic.
+
+February 11, 2026
+- Verified proper neighbor gate alignment across all generated maps.
+- Finalized Makefile with debugging symbols (-g).
 - Project verified and ready for submission.

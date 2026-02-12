@@ -78,7 +78,8 @@ void generatePaths(singleMap *map, int n, int s, int w, int e){
 
 void generateBuildings(singleMap *map, char pokeMart, char pokeCentre){
     char types[] = {pokeMart, pokeCentre}; // Could be ' ' or 'M' / 'C'
-    for (int i = 0; i <  sizeof(types)/sizeof(types[0]); i++) {
+    const int numTypes = sizeof(types)/sizeof(types[0]);
+    for (int i = 0; i < numTypes; i++) {
         if (types[i] == ' ') continue;
         while (1) {
             // Pick coordinates for top-left of 2x2 while staying away from borders
