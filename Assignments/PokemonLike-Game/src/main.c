@@ -2,62 +2,75 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "map.h"
+#include "entity.h"
 
-singleMap *world[401][401] = {NULL};
-int y = 200, x = 200;
+typedef struct {
+    singleMap *world[401][401];
+    int x, y;
+    Player *pc;
+} Game;
 
-void generateMap(singleMap *map){
-    setupMap(map);
+void generateMap(Game *game){
+    setupMap(game->world[game->y][game->x]);
 
     // Either coordinate of the connecting gate / -1 for randomly generated gate / -2 for no gate (Gates cant be at a -ve value)
-    int n = (world[y-1][x] != NULL) ? world[y-1][x]->sGate : -1;
-    int s = (world[y+1][x] != NULL) ? world[y+1][x]->nGate : -1;
-    int w = (world[y][x-1] != NULL) ? world[y][x-1]->eGate : -1;
-    int e = (world[y][x+1] != NULL) ? world[y][x+1]->wGate : -1;
+    int n = (game->y > 0 && game->world[game->y-1][game->x] != NULL) ? game->world[game->y-1][game->x]->sGate : -1;
+    int s = (game->y < 400 && game->world[game->y+1][game->x] != NULL) ? game->world[game->y+1][game->x]->nGate : -1;
+    int w = (game->x > 0 && game->world[game->y][game->x-1] != NULL) ? game->world[game->y][game->x-1]->eGate : -1;
+    int e = (game->x < 400 && game->world[game->y][game->x+1] != NULL) ? game->world[game->y][game->x+1]->wGate : -1;
     // If the map is on the border dont generate gates at all
-    if(y == 0) n = -2; 
-    if(y == 400) s = -2;
-    if (x == 0) w = -2;
-    if (x == 400) e = -2;
-    generatePaths(map, n, s, w, e);
+    if(game->y == 0) n = -2; 
+    if(game->y == 400) s = -2;
+    if (game->x == 0) w = -2;
+    if (game->x == 400) e = -2;
+    generatePaths(game->world[game->y][game->x], n, s, w, e);
 
-    int distance = abs(x - 200) + abs(y - 200);
+    int distance = abs(game->x - 200) + abs(game->y - 200);
     int probability = 5; // Default value is 5%
     if(distance < 200) probability = ((-45 * distance) / 200) + 50;
-    char pokeMart = ((rand() % 100) < probability || (x == 200 && y == 200)) ? 'M' : ' ';
-    char pokeCentre = ((rand() % 100) < probability || (x == 200 && y == 200)) ? 'C' : ' ';
-    generateBuildings(map, pokeMart, pokeCentre);
+    char pokeMart = ((rand() % 100) < probability || (game->x == 200 && game->y == 200)) ? 'M' : ' ';
+    char pokeCentre = ((rand() % 100) < probability || (game->x == 200 && game->y == 200)) ? 'C' : ' ';
+    generateBuildings(game->world[game->y][game->x], pokeMart, pokeCentre);
 
-    generateTerrain(map);
-    printMap(map);
+    generateTerrain(game->world[game->y][game->x]);
+    initializePlayer(game->pc, game->world[game->y][game->x]);
+
+    game->world[game->y][game->x]->mapY = game->y;
+    game->world[game->y][game->x]->mapX = game->x;
+    
+    printMap(game->world[game->y][game->x]);
 }
 
-void handleMovement(int changeY, int changeX){
-    if (x + changeX < 0 || x + changeX > 400 || y + changeY < 0 || y + changeY > 400) {
+void handleMovement(int changeY, int changeX, Game *game){
+    if (game->x + changeX < 0 || game->x + changeX > 400 || game->y + changeY < 0 || game->y + changeY > 400) {
         printf("You have reached the edge of the world!\n\n");
         return;
     }
 
-    x += changeX; y += changeY;
-    if (world[y][x] == NULL) {
-        world[y][x] = malloc(sizeof(singleMap));
-        generateMap(world[y][x]);
+    game->x += changeX; game->y += changeY;
+    if (game->world[game->y][game->x] == NULL) {
+        game->world[game->y][game->x] = malloc(sizeof(singleMap));
+        generateMap(game);
     } else {
-        printMap(world[y][x]);
+        printMap(game->world[game->y][game->x]);
     }
 }
 
 int main(int argc, char *argv[]){
     srand(time(NULL));
+    Game game = {NULL};
+    game.y = 200;
+    game.x = 200;
 
-    // Generate the initial map
-    world[y][x] = malloc(sizeof(singleMap));
-    generateMap(world[y][x]);
+    // Generate the initial map and entities
+    game.pc = malloc(sizeof(Player));
+    game.world[game.y][game.x] = malloc(sizeof(singleMap));
+    generateMap(&game);
 
     // Movement
     char ch, input[13]; // Max: "f -200 -200"
     while(1){
-        printf("Current coordinates (x, y): (%d, %d)\n", x-200, y-200);
+        printf("Current coordinates (x, y): (%d, %d)\n", game.x-200, game.y-200);
         printf("Move (n,s,w,e,f) or 'q': ");
         int i = 0;
         do{
@@ -83,19 +96,19 @@ int main(int argc, char *argv[]){
                 continue;
             }
 
-            y = flyY + 200; x = flyX + 200;
-            if (world[y][x] == NULL) {
-                world[y][x] = malloc(sizeof(singleMap));
-                generateMap(world[y][x]);
+            game.y = flyY + 200; game.x = flyX + 200;
+            if (game.world[game.y][game.x] == NULL) {
+                game.world[game.y][game.x] = malloc(sizeof(singleMap));
+                generateMap(&game);
             } else {
-                printMap(world[y][x]);
+                printMap(game.world[game.y][game.x]);
             }
         } else {
             switch (input[0]) {
-            case 'n': handleMovement(-1, 0); break;
-            case 's': handleMovement(1, 0);  break;
-            case 'w': handleMovement(0, -1); break;
-            case 'e': handleMovement(0, 1);  break;
+            case 'n': handleMovement(-1, 0, &game); break;
+            case 's': handleMovement(1, 0, &game);  break;
+            case 'w': handleMovement(0, -1, &game); break;
+            case 'e': handleMovement(0, 1, &game);  break;
             default:  printf("Invalid command!\n\n");
             }
         }
@@ -103,9 +116,11 @@ int main(int argc, char *argv[]){
 
     for (int i = 0; i < 401; i++){
         for(int j = 0; j < 401; j++){
-            if(world[i][j] != NULL) free(world[i][j]); // Free the memory of the created maps
+            if(game.world[i][j] != NULL) free(game.world[i][j]); // Free the memory of the created maps
         }
     }
+
+    free(game.pc);
 
     return 0;
 }

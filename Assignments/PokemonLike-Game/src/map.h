@@ -5,7 +5,7 @@
 #define maxX 80
 
 typedef struct {
-    int nGate, sGate, eGate, wGate;
+    int mapY, mapX, nGate, sGate, eGate, wGate;
     char terrain[maxY][maxX];
 } singleMap;
 
