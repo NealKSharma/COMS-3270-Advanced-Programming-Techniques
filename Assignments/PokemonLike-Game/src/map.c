@@ -107,6 +107,7 @@ void generateTerrain(singleMap *map){
     int head = 0;
     int tail = 0;
 
+    // Long Grass, Water, Clearing, Boulders
     char terrainTypes[] = {':', '~', '.', '%'};
     int seedCounts[] = {6, 1, 6, 1}; // Need to find the perfect balance.
     
