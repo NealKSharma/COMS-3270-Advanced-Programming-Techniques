@@ -47,6 +47,7 @@ int getCost(entityType type, char terrain){
                 case '*': return 15; // Flower
                 default: return INT_MAX; // Boulders, Water, and Gates
             }
+        default: return -1;
     }
     return 0;
 }
