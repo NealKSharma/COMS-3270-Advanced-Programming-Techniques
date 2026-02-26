@@ -1,11 +1,10 @@
-Assignment 1.02: Moving from Map to Map
+Assignment 1.03: Entities and distance maps
 
-This assignment builds on Assignment 1.01 by implementing a 401x401 world of maps centered at (0,0). The world is represented as a 2D array of pointers to singleMap structs. Maps are generated lazily using malloc only when first visited and are preserved for future revisits.
-
-Movement commands include north (n), south (s), east (e), west (w), fly (f x y), and quit (q). Edge movement beyond the world boundary is prevented. Gates align correctly with previously generated neighboring maps, and maps on world borders do not generate outward-facing gates.
-
-Building spawn probability declines linearly with Manhattan distance from the center, reaching a minimum of 5%. The center map (0,0) always contains both a Pokémart and Pokécenter.
+The assignment implements a shortest-path distance map for the two trainers: rival and hiker. Using Dijkstra's Algorithm and a custon min-heap, the program calculates the movement cost from from every tile on the map to the player character '@'.
 
 Key Data Structures:
-- singleMap *world[401][401]: Stores all generated maps.
-- singleMap: Contains terrain and gate metadata.
+- Game struct: Includes information like the x,y, player entity, and pointer to maps.
+- hikerDistance and rivalDistance: Distance maps for the two entities.
+- Entity struct: Contains details like mapY, mapX, y, x, and entity type.
+- Player struct: Contains details abuot the player.
+- Helper heap structs heap and heapnode.

@@ -17,7 +17,7 @@ void printDistanceMap(int dist[maxY][maxX]){
             if(dist[i][j] == INT_MAX){
                 printf("   ");
             } else {
-                printf("%2d ", dist[i][j] % 100);
+                printf("%02d ", dist[i][j] % 100);
             }
         }
         printf("\n");
@@ -55,8 +55,8 @@ void generateMap(Game *game){
     printMap(game->world[game->y][game->x]);
 
     // TODO: Its being called on each movement. It's really unoptimized.
-    pathFinding(game->world[game->y][game->x], game->pc, hiker, hikerDistance);
-    pathFinding(game->world[game->y][game->x], game->pc, rival, rivalDistance);
+    pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+    pathFinding(game->world[game->y][game->x], rival, rivalDistance);
     printDistanceMap(hikerDistance);
     printDistanceMap(rivalDistance);
 }
@@ -74,8 +74,8 @@ void handleMovement(int changeY, int changeX, Game *game){
     } else {
         printMap(game->world[game->y][game->x]);
         // TODO: Its being called on each movement. It's really unoptimized.
-        pathFinding(game->world[game->y][game->x], game->pc, hiker, hikerDistance);
-        pathFinding(game->world[game->y][game->x], game->pc, rival, rivalDistance);
+        pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+        pathFinding(game->world[game->y][game->x], rival, rivalDistance);
         printDistanceMap(hikerDistance);
         printDistanceMap(rivalDistance);
     }
@@ -129,6 +129,8 @@ int main(){
                 generateMap(game);
             } else {
                 printMap(game->world[game->y][game->x]);
+                pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+                pathFinding(game->world[game->y][game->x], rival, rivalDistance);
                 printDistanceMap(hikerDistance);
                 printDistanceMap(rivalDistance);
             }
@@ -150,6 +152,7 @@ int main(){
     }
 
     free(game->pc);
+    free(game);
 
     return 0;
 }

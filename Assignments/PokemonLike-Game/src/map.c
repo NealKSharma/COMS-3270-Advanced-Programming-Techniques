@@ -134,8 +134,10 @@ void generateTerrain(singleMap *map){
         // TODO: Favour left and right terrain generation over up and down
         addToQueue(map, currentX + 1, currentY, currentX, currentY, queue, &tail); // Right
         addToQueue(map, currentX - 1, currentY, currentX, currentY, queue, &tail); // Left
-        addToQueue(map, currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
-        addToQueue(map, currentX, currentY - 1, currentX, currentY, queue, &tail); // Up
+        if (rand() % 4 == 0) {
+            addToQueue(map, currentX, currentY + 1, currentX, currentY, queue, &tail); // Down
+            addToQueue(map, currentX, currentY - 1, currentX, currentY, queue, &tail); // Up
+        }
     }
 
     // Add 20 to 30 Trees
@@ -143,7 +145,7 @@ void generateTerrain(singleMap *map){
     for(int i = 0; i < trees; i++){
         int y = (rand() % (maxY - 4)) + 2;
         int x = (rand() % (maxX - 4)) + 2;
-        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.'){
+        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.' && map->terrain[y][x] != ' '){
             y = (rand() % (maxY - 4)) + 2;
             x = (rand() % (maxX - 4)) + 2;
         }
@@ -155,11 +157,36 @@ void generateTerrain(singleMap *map){
     for(int i = 0; i < flowers; i++){
         int y = (rand() % (maxY - 4)) + 2;
         int x = (rand() % (maxX - 4)) + 2;
-        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.'){
+        while(map->terrain[y][x] != ':' && map->terrain[y][x] != '.' && map->terrain[y][x] != ' '){
             y = (rand() % (maxY - 4)) + 2;
             x = (rand() % (maxX - 4)) + 2;
         }
         map->terrain[y][x] = '*';
+    }
+
+    // Check for empty squares (This is happening due to favouring right / left generation)
+    // Probably need to find a better fix for it but this is the best I can think of right now.
+    for(int i = 1; i < maxY - 1; i++){
+        for(int j = 1; j < maxX - 1; j++){
+            if(map->terrain[i][j] == ' '){
+                // Stores neighbors and checks for border or inside boulrders
+                char neighbors[] = {
+                    i > 1 ? map->terrain[i-1][j] : ' ',
+                    i < maxY-2 ? map->terrain[i+1][j] : ' ',
+                    j > 1 ? map->terrain[i][j-1] : ' ',
+                    j < maxX-2 ? map->terrain[i][j+1] : ' '
+                };
+
+                for(int k = 0; k < 4; k++){
+                    if(neighbors[k] != ' ' && neighbors[k] != '#'){
+                        map->terrain[i][j] = neighbors[k];
+                        break;
+                    }
+                }
+                // Safety check, just replace it with a flower.
+                if (map->terrain[i][j] == ' ') map->terrain[i][j] = '*';
+            }
+        }
     }
 }
 

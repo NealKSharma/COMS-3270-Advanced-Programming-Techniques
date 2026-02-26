@@ -1,27 +1,22 @@
-February 3, 2026
-- Set up folder structure for Assignment 1.02.
-- Created map.h header file and separated functionality between main.c and map.c.
-- Implemented a 401x401 world array of pointers to singleMap structs.
-- Added dynamic memory allocation (malloc) for maps and free logic for cleanup.
-- Updated path generation to support externally provided gate parameters for neighbor alignment.
+February 13, 2026
+- Created Entity.c and Entity.h. 
+- Setup the player character and it's placement randomly on a path on every map.
+- Changed from global variables to Game struct for better orginzation.
 
-February 3, 2026
-- Fixed a bug where the south path incorrectly connected into the east path.
-- Optimized path generation logic and improved overall map consistency.
+February 17, 2026
+- Updated Makefile to include warnings.
+- Implemented a Heap to the entity classes.
 
-February 4, 2026
-- Implemented declining building spawn probability based on Manhattan distance from world center.
-- Ensured center map (0,0) always contains both Pokémart ('M') and Pokécenter ('C').
+February 19, 2026
+- Added pathfinding using Dijkstra's Algorithm.
+- Setup distance maps for the two trainers.
+- These distance maps are updated based on the map in the main method throuhg the pathfinding method.
 
-February 9, 2026
-- Implemented player movement system (n, s, e, w).
-- Switched from scanf to getchar for better input handling.
-- Added fly command (f x y) with coordinate validation.
-- Added boundary checks to prevent movement outside the 401x401 world.
-- Modified map generation so world-border maps do not generate outward-facing gates.
-- Unified initial map generation with standard map generation logic.
+February 24, 2026
+- Made it so tiles that are not reachable are not represented on the distance map and are replaced by ' '.
+- Improved map generation so it faviours left and right movement 4x more then up and down movement. Added safety checks make sure that no square is left empty.
 
-February 11, 2026
-- Verified proper neighbor gate alignment across all generated maps.
-- Finalized Makefile with debugging symbols (-g).
-- Project verified and ready for submission.
+February 25, 2026
+- Foudn a bug where the player position was not being changed when travelling back to an already generated map.
+- Finished up with the CHANGELOG and README.
+- Created the zip and assignment ready for submission.

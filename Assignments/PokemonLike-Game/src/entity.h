@@ -11,7 +11,7 @@ typedef enum {
 } entityType;
 
 typedef struct {
-    int mapY, mapX, y, x;
+    int mapY, mapX;
     entityType type;
 } Entity;
 
@@ -37,6 +37,6 @@ int getCost(entityType type, char terrain);
 void heapInitialize(heap *h);
 void heapPush(heap *h, int y, int x, int distance);
 heapNode heapPop(heap *h);
-void pathFinding(singleMap *map, Player *pc, entityType type, int dist[maxY][maxX]);
+void pathFinding(singleMap *map, entityType type, int dist[maxY][maxX]);
 
 #endif

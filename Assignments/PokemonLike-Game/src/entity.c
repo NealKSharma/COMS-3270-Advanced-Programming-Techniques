@@ -16,8 +16,8 @@ void initializePlayer(Player *pc, singleMap *map){
         x = rand() % (maxX - 2) + 1;
         if(map->terrain[y][x] == '#'){
             map->terrain[y][x] = '@';
-            pc->entity.y = y;
-            pc->entity.x = x;
+            map->playerY = y;
+            map->playerX = x;
             break;
         }
     }
@@ -43,9 +43,8 @@ int getCost(entityType type, char terrain){
                 case 'C': return 50; // Pokecenter
                 case ':': return 20; // Tall Grass
                 case '.': return 10; // Clearing
-                case '^': return 20; // Trees
                 case '*': return 15; // Flower
-                default: return INT_MAX; // Boulders, Water, and Gates
+                default: return INT_MAX; // Boulders, Trees, Water, and Gates
             }
         default: return -1;
     }
@@ -94,7 +93,7 @@ heapNode heapPop(heap *h) {
     return min;
 }
 
-void pathFinding(singleMap *map, Player *pc, entityType type, int dist[maxY][maxX]){
+void pathFinding(singleMap *map, entityType type, int dist[maxY][maxX]){
     heap h;
     heapInitialize(&h);
 
@@ -104,8 +103,8 @@ void pathFinding(singleMap *map, Player *pc, entityType type, int dist[maxY][max
         }
     }
     // Set player's location to 0 distance.
-    dist[pc->entity.y][pc->entity.x] = 0;
-    heapPush(&h, pc->entity.y, pc->entity.x, 0);
+    dist[map->playerY][map->playerX] = 0;
+    heapPush(&h, map->playerY, map->playerX, 0);
 
     while(h.size > 0){
         heapNode curr = heapPop(&h);
