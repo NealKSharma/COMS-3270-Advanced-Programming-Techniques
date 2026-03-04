@@ -1,14 +1,25 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "entity.h"
 #include "map.h"
 
 int hikerDistance[maxY][maxX];
 int rivalDistance[maxY][maxX];
 
+static const int move_costs[7][8] = {
+    // Terrain: 0:#, 1:M, 2:C, 3::, 4:., 5:^, 6:*, 7:Default
+    {10, 50, 50, 20, 10, 20, 15, INT_MAX}, // Player
+    {10, 50, 50, 15, 10, 15, 15, INT_MAX}, // Hiker
+    {10, 50, 50, 20, 10, INT_MAX, 15, INT_MAX}, // Rival
+    {10, 50, 50, 20, 10, INT_MAX, 15, INT_MAX}, // Pacer
+    {10, 50, 50, 20, 10, INT_MAX, 15, INT_MAX}, // Wanderer
+    {10, 50, 50, 20, 10, INT_MAX, 15, INT_MAX}, // Sentry
+    {10, 50, 50, 20, 10, INT_MAX, 15, INT_MAX} // Explorer
+};
+
 void initializePlayer(Player *pc, singleMap *map){
     pc->entity.type = player;
-    pc->entity.mapY = map->mapY;
-    pc->entity.mapX = map->mapX;
     // Can only be placed on a path
     int y, x;
     while(1){
@@ -23,32 +34,22 @@ void initializePlayer(Player *pc, singleMap *map){
     }
 }
 
-int getCost(entityType type, char terrain){
-    switch(type){
-        case hiker:
-            switch(terrain){
-                case '#': return 10; // Path
-                case 'M': return 50; // Pokemart
-                case 'C': return 50; // Pokecenter
-                case ':': return 15; // Tall Grass
-                case '.': return 10; // Clearing
-                case '^': return 20; // Trees
-                case '*': return 15; // Flower
-                default: return INT_MAX; // Boulders, Water, and Gates
-            }
-        case rival:
-            switch(terrain){
-                case '#': return 10; // Path
-                case 'M': return 50; // Pokemart
-                case 'C': return 50; // Pokecenter
-                case ':': return 20; // Tall Grass
-                case '.': return 10; // Clearing
-                case '*': return 15; // Flower
-                default: return INT_MAX; // Boulders, Trees, Water, and Gates
-            }
-        default: return -1;
+int getCost(entityType type, char terrain) {
+    int terrainIndex;
+    // Map the character to a column index
+    switch(terrain) {
+        case '#': terrainIndex = 0; break; // Path
+        case 'M': terrainIndex = 1; break; // Pokemart
+        case 'C': terrainIndex = 2; break; // Pokecenter
+        case ':': terrainIndex = 3; break; // Tall Grass
+        case '.': terrainIndex = 4; break; // Clearing
+        case '^': terrainIndex = 5; break; // Trees
+        case '*': terrainIndex = 6; break; // Flower
+        default:  terrainIndex = 7; break; // INT_MAX
     }
-    return 0;
+
+    if (type < 0 || type > 6) return INT_MAX;
+    return move_costs[type][terrainIndex];
 }
 
 void heapInitialize(heap *h){
@@ -132,4 +133,57 @@ void pathFinding(singleMap *map, entityType type, int dist[maxY][maxX]){
         }
     }
     free(h.nodes);
+}
+
+void initializeEntities(singleMap *map, int numTrainers){
+    map->entityList = malloc(numTrainers * sizeof(Entity *));
+    if(!map->entityList) return;
+
+    int index = 0;
+    int random;
+    if (numTrainers < 2) {
+        random = rand() % 2;
+        if(random == 0) placeEntity(map, hiker, index++);
+        else placeEntity(map, rival, index++);
+    } else {
+        placeEntity(map, hiker, index++);
+        placeEntity(map, rival, index++);
+        numTrainers -= 2;
+        while(numTrainers > 0){
+            entityType type = (1 + rand() % 6);
+            placeEntity(map, type, index++);
+            numTrainers--;
+        }
+    }
+}
+
+void placeEntity(singleMap *map, entityType type, int index){
+    Entity *npc = malloc(sizeof(Entity));
+    if(!npc) return;
+
+    int y = rand() % (maxY - 2) + 1;
+    int x = rand() % (maxX - 2) + 1;
+    while(getCost(type, map->terrain[y][x]) == INT_MAX){
+        y = rand() % (maxY - 2) + 1;
+        x = rand() % (maxX - 2) + 1;
+    }
+    npc->y = y;
+    npc->x = x;
+    npc->type = type;
+    npc->standingOn = map->terrain[y][x];
+    switch(type){
+        case 1: map->terrain[y][x] = 'h'; break;
+        case 2: map->terrain[y][x] = 'r';break;
+        case 3: map->terrain[y][x] = 'p';break;
+        case 4: map->terrain[y][x] = 'w';break;
+        case 5: map->terrain[y][x] = 's';break;
+        case 6: map->terrain[y][x] = 'e';break;
+    }
+    map->entityList[index] = (struct Entity *)npc;
+}
+
+void entityMovementLoop(){
+    while(1){
+        
+    }
 }

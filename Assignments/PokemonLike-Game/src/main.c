@@ -1,12 +1,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
+#include <strings.h>
 #include "map.h"
 #include "entity.h"
 
 typedef struct {
     singleMap *world[401][401];
-    int x, y;
+    int x, y, numTrainers;
     Player *pc;
 } Game;
 
@@ -48,11 +50,13 @@ void generateMap(Game *game){
 
     generateTerrain(game->world[game->y][game->x]);
     initializePlayer(game->pc, game->world[game->y][game->x]);
+    initializeEntities(game->world[game->y][game->x], game->numTrainers);
 
     game->world[game->y][game->x]->mapY = game->y;
     game->world[game->y][game->x]->mapX = game->x;
     
-    printMap(game->world[game->y][game->x]);
+    printMap(game->world[game->y][game->x]); 
+    entityMovementLoop(); // INFINITE LOOP HERE
 
     // TODO: Its being called on each movement. It's really unoptimized.
     pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
@@ -81,13 +85,27 @@ void handleMovement(int changeY, int changeX, Game *game){
     }
 }
 
-int main(){
+int main(int argc, char *argv[]){
     srand(time(NULL));
+
     Game *game = calloc(1, sizeof(Game)); 
     if (!game) return 1;
 
     game->y = 200;
     game->x = 200;
+    game->numTrainers = 10;
+    for (int i = 0; i < argc; i++){
+        if(strcmp(argv[i], "--numtrainers") == 0){
+            if(i + 1 < argc){
+                game->numTrainers = atoi(argv[i+1]);
+                i++;
+            } else {
+                printf("The --numtrainers flag requires a value.");
+                free(game);
+                exit(1);
+            }
+        }
+    }
 
     // Generate the initial map and entities
     game->pc = malloc(sizeof(Player));

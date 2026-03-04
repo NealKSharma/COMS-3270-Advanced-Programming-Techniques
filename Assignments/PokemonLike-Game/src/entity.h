@@ -7,11 +7,15 @@ typedef enum {
     player, // 0
     hiker, // 1
     rival, // 2
-    swimmer // 3
+    pacer, // 3
+    wanderer, // 4
+    sentry, // 5
+    explorer // 6
 } entityType;
 
 typedef struct {
-    int mapY, mapX;
+    int y, x, hinderance;
+    char standingOn, direction; // n, s, w, e
     entityType type;
 } Entity;
 
@@ -38,5 +42,8 @@ void heapInitialize(heap *h);
 void heapPush(heap *h, int y, int x, int distance);
 heapNode heapPop(heap *h);
 void pathFinding(singleMap *map, entityType type, int dist[maxY][maxX]);
+void initializeEntities(singleMap *map, int numTrainers);
+void placeEntity(singleMap *map, entityType type, int index);
+void entityMovementLoop();
 
 #endif

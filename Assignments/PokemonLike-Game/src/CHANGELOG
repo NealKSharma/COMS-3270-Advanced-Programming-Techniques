@@ -17,6 +17,6 @@ February 24, 2026
 - Improved map generation so it faviours left and right movement 4x more then up and down movement. Added safety checks make sure that no square is left empty.
 
 February 25, 2026
-- Foudn a bug where the player position was not being changed when travelling back to an already generated map.
+- Found a bug where the player position was not being changed when travelling back to an already generated map.
 - Finished up with the CHANGELOG and README.
 - Created the zip and assignment ready for submission.

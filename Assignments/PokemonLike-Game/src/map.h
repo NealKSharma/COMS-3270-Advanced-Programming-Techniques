@@ -6,6 +6,7 @@
 
 typedef struct {
     int mapY, mapX, nGate, sGate, eGate, wGate;
+    struct Entity **entityList;
     int playerY, playerX;
     char terrain[maxY][maxX];
 } singleMap;
