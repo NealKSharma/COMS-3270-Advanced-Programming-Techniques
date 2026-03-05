@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include <strings.h>
+#include <string.h>
 #include "map.h"
 #include "entity.h"
 
@@ -12,19 +12,19 @@ typedef struct {
     Player *pc;
 } Game;
 
-void printDistanceMap(int dist[maxY][maxX]){
-    printf("\n");
-    for(int i = 0; i < maxY; i++){
-        for(int j = 0; j < maxX; j++){
-            if(dist[i][j] == INT_MAX){
-                printf("   ");
-            } else {
-                printf("%02d ", dist[i][j] % 100);
-            }
-        }
-        printf("\n");
-    }
-}
+// void printDistanceMap(int dist[maxY][maxX]){
+//     printf("\n");
+//     for(int i = 0; i < maxY; i++){
+//         for(int j = 0; j < maxX; j++){
+//             if(dist[i][j] == INT_MAX){
+//                 printf("   ");
+//             } else {
+//                 printf("%02d ", dist[i][j] % 100);
+//             }
+//         }
+//         printf("\n");
+//     }
+// }
 
 void generateMap(Game *game){
     setupMap(game->world[game->y][game->x]);
@@ -55,14 +55,14 @@ void generateMap(Game *game){
     game->world[game->y][game->x]->mapY = game->y;
     game->world[game->y][game->x]->mapX = game->x;
     
-    printMap(game->world[game->y][game->x]); 
-    entityMovementLoop(); // INFINITE LOOP HERE
+    // printMap(game->world[game->y][game->x]); 
+    entityMovementLoop(game->world[game->y][game->x], game->pc, game->numTrainers); // INFINITE LOOP HERE
 
-    // TODO: Its being called on each movement. It's really unoptimized.
-    pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
-    pathFinding(game->world[game->y][game->x], rival, rivalDistance);
-    printDistanceMap(hikerDistance);
-    printDistanceMap(rivalDistance);
+    // // TODO: Its being called on each movement. It's really unoptimized.
+    // pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+    // pathFinding(game->world[game->y][game->x], rival, rivalDistance);
+    // printDistanceMap(hikerDistance);
+    // printDistanceMap(rivalDistance);
 }
 
 void handleMovement(int changeY, int changeX, Game *game){
@@ -77,11 +77,11 @@ void handleMovement(int changeY, int changeX, Game *game){
         generateMap(game);
     } else {
         printMap(game->world[game->y][game->x]);
-        // TODO: Its being called on each movement. It's really unoptimized.
-        pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
-        pathFinding(game->world[game->y][game->x], rival, rivalDistance);
-        printDistanceMap(hikerDistance);
-        printDistanceMap(rivalDistance);
+        // // TODO: Its being called on each movement. It's really unoptimized.
+        // pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+        // pathFinding(game->world[game->y][game->x], rival, rivalDistance);
+        // printDistanceMap(hikerDistance);
+        // printDistanceMap(rivalDistance);
     }
 }
 
@@ -106,6 +106,8 @@ int main(int argc, char *argv[]){
             }
         }
     }
+
+    if(game->numTrainers > 50) printf("\n\nIf the numtrainers is > 50, the program will likely get stuck in an infinite loop.\n\n");
 
     // Generate the initial map and entities
     game->pc = malloc(sizeof(Player));
@@ -147,10 +149,10 @@ int main(int argc, char *argv[]){
                 generateMap(game);
             } else {
                 printMap(game->world[game->y][game->x]);
-                pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
-                pathFinding(game->world[game->y][game->x], rival, rivalDistance);
-                printDistanceMap(hikerDistance);
-                printDistanceMap(rivalDistance);
+                // pathFinding(game->world[game->y][game->x], hiker, hikerDistance);
+                // pathFinding(game->world[game->y][game->x], rival, rivalDistance);
+                // printDistanceMap(hikerDistance);
+                // printDistanceMap(rivalDistance);
             }
         } else {
             switch (input[0]) {
@@ -165,10 +167,14 @@ int main(int argc, char *argv[]){
 
     for (int i = 0; i < 401; i++){
         for(int j = 0; j < 401; j++){
-            if(game->world[i][j] != NULL) free(game->world[i][j]); // Free the memory of the created maps
+            if(game->world[i][j] == NULL) continue;
+            for(int k = 0; k < game->numTrainers; k++){
+                free(game->world[i][j]->entityList[k]);
+            }
+            free(game->world[i][j]->entityList);
+            free(game->world[i][j]);
         }
     }
-
     free(game->pc);
     free(game);
 

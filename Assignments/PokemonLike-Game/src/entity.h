@@ -1,6 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#include <limits.h>
 #include "map.h"
 
 typedef enum {
@@ -13,8 +14,8 @@ typedef enum {
     explorer // 6
 } entityType;
 
-typedef struct {
-    int y, x, hinderance;
+typedef struct Entity{
+    int y, x;
     char standingOn, direction; // n, s, w, e
     entityType type;
 } Entity;
@@ -24,8 +25,9 @@ typedef struct {
 } Player;
 
 typedef struct {
-    int x, y;
+    int y, x;
     int distance;
+    Entity *e;
 } heapNode;
 
 typedef struct {
@@ -39,11 +41,11 @@ extern int rivalDistance[maxY][maxX];
 void initializePlayer(Player *pc, singleMap *map);
 int getCost(entityType type, char terrain);
 void heapInitialize(heap *h);
-void heapPush(heap *h, int y, int x, int distance);
+void heapPush(heap *h, Entity *e, int y, int x, int distance);
 heapNode heapPop(heap *h);
-void pathFinding(singleMap *map, entityType type, int dist[maxY][maxX]);
+void pathFinding(singleMap *map, Player *pc, entityType type, int dist[maxY][maxX]);
 void initializeEntities(singleMap *map, int numTrainers);
 void placeEntity(singleMap *map, entityType type, int index);
-void entityMovementLoop();
+void entityMovementLoop(singleMap *map, Player *pc, int numTrainers);
 
 #endif
