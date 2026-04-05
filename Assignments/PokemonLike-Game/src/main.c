@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <curses.h>
+
 #include "map.h"
 #include "entity.h"
 

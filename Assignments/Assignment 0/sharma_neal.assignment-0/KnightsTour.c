@@ -1,5 +1,3 @@
-// Neal Kaushik Sharma
-// COMS 3270
 #include <stdio.h>
 
 #define DIM 5
